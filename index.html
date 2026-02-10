@@ -7,19 +7,41 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #030305; --cyan: #00f3ff; --cyan-dim: rgba(0, 243, 255, 0.2);
-            --green: #0aff0a; --red: #ff003c; --purple: #bd00ff; 
-            --yellow: #f8e71c; --panel: #0d0d10;
+            --bg: #030305; 
+            --cyan: #00f3ff; 
+            --cyan-dim: rgba(0, 243, 255, 0.2);
+            --green: #0aff0a; 
+            --red: #ff003c; 
+            --purple: #bd00ff; 
+            --yellow: #f8e71c; 
+            --panel: #0d0d10;
         }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body { 
-            background: var(--bg); color: #e0e0e0; font-family: 'JetBrains Mono', monospace; 
-            margin: 0; height: 100dvh; display: flex; justify-content: center; overflow: hidden; 
+            background: var(--bg); 
+            color: #e0e0e0; 
+            font-family: 'JetBrains Mono', monospace; 
+            margin: 0; 
+            height: 100dvh; 
+            display: flex; 
+            justify-content: center; 
+            overflow: hidden; 
             background-image: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
-        #game { width: 100%; max-width: 600px; height: 100%; padding: 15px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 2; }
+        #game { 
+            width: 100%; 
+            max-width: 600px; 
+            height: 100%; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            position: relative; 
+            z-index: 2;
+        }
         
         /* Scanlines */
         body::after {
@@ -36,6 +58,7 @@
         }
         .hud-left { display: flex; align-items: center; gap: 10px; }
         .hud-right { display: flex; align-items: center; gap: 15px; } 
+
         .hud-btn { 
             background: transparent; border: 1px solid var(--purple); color: var(--purple); 
             padding: 6px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;
@@ -43,8 +66,14 @@
         }
         .hud-btn:active { background: var(--purple); color: #fff; }
         
-        .prog-box { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; border: 1px solid #333; }
-        .prog-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green); }
+        .prog-box { 
+            width: 100%; height: 6px; background: #222; border-radius: 3px; 
+            overflow: hidden; border: 1px solid #333;
+        }
+        .prog-bar { 
+            height: 100%; background: var(--green); width: 0%; 
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green);
+        }
 
         /* Tela Principal */
         .screen { 
@@ -55,75 +84,107 @@
             border-radius: 12px; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
         }
+
         .def { 
             font-size: 1.3rem; line-height: 1.6; font-weight: 500; color: #fff;
             text-shadow: 0 0 5px rgba(255,255,255,0.3); min-height: 60px;
             white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
         }
         @media (max-width: 380px) { .def { font-size: 1.1rem; } }
-        .def::after { content: '█'; animation: blink 1s steps(2) infinite; color: var(--cyan); font-size: 1.2rem; margin-left: 5px; opacity: 0.8; }
+
+        .def::after { 
+            content: '█'; animation: blink 1s steps(2) infinite; color: var(--cyan); 
+            font-size: 1.2rem; margin-left: 5px; opacity: 0.8;
+        }
+
         .hint { 
-            color: var(--yellow); background: rgba(248, 231, 28, 0.1); border: 1px solid var(--yellow); border-radius: 6px;
+            color: var(--yellow); background: rgba(248, 231, 28, 0.1);
+            border: 1px solid var(--yellow); border-radius: 6px;
             margin-top: 15px; font-size: 0.95rem; padding: 10px; display: none; width: 100%; 
         }
         .show { display: block; animation: fadeIn 0.5s; }
 
-        /* --- CONTROLES DE CAIXINHAS --- */
+        /* Controles */
         .controls { 
             display: flex; flex-direction: column; gap: 12px; 
-            padding-bottom: env(safe-area-inset-bottom); background: var(--panel); 
-            padding: 15px; border-radius: 12px; border: 1px solid #333;
+            padding-bottom: env(safe-area-inset-bottom); 
+            background: var(--panel); padding: 15px;
+            border-radius: 12px; border: 1px solid #333;
         }
-        
-        /* Container das caixinhas */
+
+        /* Container do input invisível e caixas */
         .input-wrapper {
-            position: relative; width: 100%; min-height: 50px; display: flex; justify-content: center;
+            position: relative; width: 100%; min-height: 40px; display: flex; justify-content: center;
         }
-        
-        /* O Input Invisível (Ghost) */
-        #ans { 
+
+        /* Input Invisível */
+        input { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             opacity: 0; z-index: 10; cursor: text; font-size: 16px; 
-            /* Importante para mobile: */
             color: transparent; background: transparent; border: none; outline: none; caret-color: transparent;
         }
 
-        /* O Visual das Caixinhas */
+        /* Container das Caixinhas */
         #boxes-container {
-            display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; width: 100%; pointer-events: none;
+            display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; pointer-events: none;
         }
+
+        /* Estilo das Caixinhas */
         .char-box {
-            width: 28px; height: 38px; background: #000; border: 1px solid #444; border-bottom: 2px solid #555;
-            border-radius: 4px; color: var(--cyan); font-size: 1.2rem; font-weight: bold;
+            width: 26px; height: 36px; background: #000; border: 1px solid #444; border-bottom: 2px solid #555;
+            border-radius: 4px; color: var(--cyan); font-size: 1.1rem; font-weight: bold;
             display: flex; align-items: center; justify-content: center; text-transform: uppercase;
             transition: 0.2s;
         }
         .char-box.filled { border-color: var(--cyan); background: rgba(0, 243, 255, 0.05); }
         .char-box.active { border-color: var(--green); box-shadow: 0 0 10px rgba(10, 255, 10, 0.3); transform: translateY(-2px); }
-        .char-space { width: 15px; border: none; background: transparent; } /* Espaço entre palavras */
-        
+        .char-space { width: 10px; border: none; background: transparent; }
+
+        /* --- CORREÇÃO PARA CELULAR (Responsividade das Caixas) --- */
+        @media (max-width: 400px) {
+            .char-box {
+                width: 20px; /* Menor largura */
+                height: 28px; /* Menor altura */
+                font-size: 0.9rem; /* Letra menor */
+                border-radius: 3px;
+                border-bottom-width: 1px;
+            }
+            #boxes-container {
+                gap: 2px; /* Espaço menor entre elas */
+            }
+            .char-space { width: 6px; }
+        }
+
         /* Animação de Erro */
         .input-error .char-box { animation: shake 0.4s; border-color: var(--red) !important; }
 
         .btns { display: flex; gap: 10px; }
+        
         button.action { 
             padding: 15px; flex: 1; border: none; border-radius: 6px; 
             font-weight: bold; font-size: 1rem; cursor: pointer; font-family: inherit;
-            text-transform: uppercase; position: relative; overflow: hidden; transition: transform 0.1s;
+            text-transform: uppercase; position: relative; overflow: hidden;
+            transition: transform 0.1s;
         }
         button.action:active { transform: scale(0.98); }
+
         .btn-ok { background: var(--cyan); color: #000; flex: 1.5; box-shadow: 0 0 10px var(--cyan-dim); }
         .btn-func { background: #222; color: #aaa; border: 1px solid #444; flex: 1; font-size: 0.8rem; }
         .btn-func:disabled { opacity: 0.5; cursor: not-allowed; border-color: #333; color: #555; }
 
-        .msg { text-align: center; height: 25px; font-weight: bold; font-size: 1rem; margin-top: -5px; text-shadow: 0 0 5px currentColor; }
+        .msg { 
+            text-align: center; height: 25px; font-weight: bold; font-size: 1rem; 
+            margin-top: -5px; text-shadow: 0 0 5px currentColor;
+        }
 
         /* Overlays */
         .overlay { 
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; z-index: 200; text-align: center; padding: 20px;
         }
         .hidden { display: none !important; }
+        
         .btn-start { 
             background: transparent; color: var(--green); padding: 20px 60px; 
             font-size: 1.4rem; border: 2px solid var(--green); border-radius: 50px; 
@@ -135,41 +196,54 @@
 
         /* Relatório */
         .report-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; 
-            margin-bottom: 20px; text-align: left; background: var(--panel); padding: 20px; 
-            border: 1px solid #333; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; margin-bottom: 20px; 
+            text-align: left; background: var(--panel); padding: 20px; border: 1px solid #333; 
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .r-item { display: flex; flex-direction: column; gap: 5px; }
         .r-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .r-val { font-size: 1.2rem; color: #fff; font-weight: bold; }
+        
         .site-link { 
-            margin-top: 25px; color: var(--cyan); text-decoration: none; border: 1px solid var(--cyan); 
-            padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; transition: 0.3s; display: inline-block;
+            margin-top: 25px; color: var(--cyan); text-decoration: none; 
+            border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 30px; 
+            font-size: 0.9rem; transition: 0.3s; display: inline-block;
         }
         .site-link:hover { background: var(--cyan-dim); }
 
         /* Mini Game Canvas */
         #mg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 40; display: none; border-radius: 12px; cursor: col-resize; }
         .mg-overlay { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; 
-            text-align: center; width: 100%; pointer-events: none; z-index: 41; text-shadow: 0 2px 4px #000; 
-            background: rgba(0,0,0,0.7); padding: 20px; border-radius: 12px;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            color: #fff; text-align: center; width: 100%; pointer-events: none; z-index: 41; 
+            text-shadow: 0 2px 4px #000; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 12px;
         }
+
+        /* Créditos */
         .author-mark {
-            position: fixed; bottom: 5px; right: 8px; font-size: 0.6rem; color: var(--cyan); 
-            opacity: 0.4; z-index: 1000; pointer-events: none; text-transform: uppercase; 
-            letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 2px var(--cyan);
+            position: fixed; bottom: 5px; right: 8px; font-size: 0.6rem; 
+            color: var(--cyan); opacity: 0.4; z-index: 1000; pointer-events: none;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
+            text-shadow: 0 0 2px var(--cyan);
         }
 
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+        @keyframes shake { 
+            0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 
+            50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } 
+        }
         
         h1 { position: relative; }
         h1::before, h1::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
         h1::before { color: var(--red); z-index: -1; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
         h1::after { color: var(--cyan); z-index: -2; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite; }
-        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
+        
+        @keyframes glitch {
+            0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) } 100% { transform: translate(0) }
+        }
     </style>
 </head>
 <body>
@@ -327,19 +401,16 @@
             document.getElementById('h').classList.remove('show');
             document.getElementById('msg').innerText = '';
             
-            // RESET DO INPUT E CAIXAS
             const input = document.getElementById('ans');
             input.value = '';
-            input.setAttribute('maxlength', st.c.t.length); // Limita tamanho
+            input.setAttribute('maxlength', st.c.t.length); 
             input.focus();
             renderBoxes(st.c.t);
         }
 
-        // Função para desenhar as caixinhas
         function renderBoxes(answerText) {
             const container = document.getElementById('boxes-container');
             container.innerHTML = '';
-            // Cria caixas para cada letra (ou espaço vazio para espaços)
             for (let char of answerText) {
                 if (char === ' ') {
                     let sp = document.createElement('div');
@@ -358,24 +429,20 @@
             }
         }
 
-        // Evento de Digitação (Sincroniza Input Fantasma com Caixas)
         document.getElementById('ans').addEventListener('input', function() {
-            const val = this.value; // O que foi digitado
-            const boxes = document.querySelectorAll('#boxes-container .char-box:not(.filled)'); // Pega caixas disponiveis
+            const val = this.value;
+            const boxes = document.querySelectorAll('#boxes-container .char-box:not(.filled)');
             const allBoxes = document.querySelectorAll('#boxes-container .char-box'); 
             
-            // Limpa visual das caixas que não são traços
             allBoxes.forEach(b => { if(b.innerText !== '-') { b.innerText = ''; b.classList.remove('filled', 'active'); } });
 
-            // Preenche com o valor digitado (ignorando espaços na logica visual, pois o input trata)
             let valIndex = 0;
             allBoxes.forEach((box, i) => {
-                if (box.innerText === '-') return; // Pula hífens fixos
-                
+                if (box.innerText === '-') return; 
                 if (valIndex < val.length) {
                     box.innerText = val[valIndex];
                     box.classList.add('filled');
-                    if (valIndex === val.length - 1) box.classList.add('active'); // Destaque na última
+                    if (valIndex === val.length - 1) box.classList.add('active'); 
                     valIndex++;
                 }
             });
@@ -383,7 +450,6 @@
 
         function check() {
             let inputRaw = document.getElementById('ans').value;
-            // Validação: Bloqueia se vazio
             if (!inputRaw || inputRaw.replace(/[^a-zA-Z0-9]/g, '').length === 0) {
                 document.getElementById('boxes-container').classList.add('input-error');
                 setTimeout(() => document.getElementById('boxes-container').classList.remove('input-error'), 400);
