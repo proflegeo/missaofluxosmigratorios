@@ -20,27 +20,14 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body { 
-            background: var(--bg); 
-            color: #e0e0e0; 
-            font-family: 'JetBrains Mono', monospace; 
-            margin: 0; 
-            height: 100dvh; 
-            display: flex; 
-            justify-content: center; 
-            overflow: hidden; 
+            background: var(--bg); color: #e0e0e0; font-family: 'JetBrains Mono', monospace; 
+            margin: 0; height: 100dvh; display: flex; justify-content: center; overflow: hidden; 
             background-image: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
         #game { 
-            width: 100%; 
-            max-width: 600px; 
-            height: 100%; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            position: relative; 
-            z-index: 2;
+            width: 100%; max-width: 600px; height: 100%; padding: 15px; 
+            display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 2; 
         }
         
         /* Scanlines */
@@ -58,7 +45,6 @@
         }
         .hud-left { display: flex; align-items: center; gap: 10px; }
         .hud-right { display: flex; align-items: center; gap: 15px; } 
-
         .hud-btn { 
             background: transparent; border: 1px solid var(--purple); color: var(--purple); 
             padding: 6px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;
@@ -66,14 +52,8 @@
         }
         .hud-btn:active { background: var(--purple); color: #fff; }
         
-        .prog-box { 
-            width: 100%; height: 6px; background: #222; border-radius: 3px; 
-            overflow: hidden; border: 1px solid #333;
-        }
-        .prog-bar { 
-            height: 100%; background: var(--green); width: 0%; 
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green);
-        }
+        .prog-box { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; border: 1px solid #333; }
+        .prog-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green); }
 
         /* Tela Principal */
         .screen { 
@@ -84,22 +64,15 @@
             border-radius: 12px; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
             backdrop-filter: blur(5px);
         }
-
         .def { 
             font-size: 1.3rem; line-height: 1.6; font-weight: 500; color: #fff;
             text-shadow: 0 0 5px rgba(255,255,255,0.3); min-height: 60px;
             white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
         }
         @media (max-width: 380px) { .def { font-size: 1.1rem; } }
-
-        .def::after { 
-            content: '█'; animation: blink 1s steps(2) infinite; color: var(--cyan); 
-            font-size: 1.2rem; margin-left: 5px; opacity: 0.8;
-        }
-
+        .def::after { content: '█'; animation: blink 1s steps(2) infinite; color: var(--cyan); font-size: 1.2rem; margin-left: 5px; opacity: 0.8; }
         .hint { 
-            color: var(--yellow); background: rgba(248, 231, 28, 0.1);
-            border: 1px solid var(--yellow); border-radius: 6px;
+            color: var(--yellow); background: rgba(248, 231, 28, 0.1); border: 1px solid var(--yellow); border-radius: 6px;
             margin-top: 15px; font-size: 0.95rem; padding: 10px; display: none; width: 100%; 
         }
         .show { display: block; animation: fadeIn 0.5s; }
@@ -107,84 +80,52 @@
         /* Controles */
         .controls { 
             display: flex; flex-direction: column; gap: 12px; 
-            padding-bottom: env(safe-area-inset-bottom); 
-            background: var(--panel); padding: 15px;
-            border-radius: 12px; border: 1px solid #333;
+            padding-bottom: env(safe-area-inset-bottom); background: var(--panel); 
+            padding: 15px; border-radius: 12px; border: 1px solid #333;
         }
-
-        /* Container do input invisível e caixas */
-        .input-wrapper {
-            position: relative; width: 100%; min-height: 40px; display: flex; justify-content: center;
-        }
-
-        /* Input Invisível */
+        
+        /* Caixinhas Dinâmicas */
+        .input-wrapper { position: relative; width: 100%; min-height: 40px; display: flex; justify-content: center; }
         input { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             opacity: 0; z-index: 10; cursor: text; font-size: 16px; 
             color: transparent; background: transparent; border: none; outline: none; caret-color: transparent;
         }
-
-        /* Container das Caixinhas */
-        #boxes-container {
-            display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; pointer-events: none;
-        }
-
-        /* Estilo das Caixinhas */
+        #boxes-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; pointer-events: none; }
         .char-box {
             width: 26px; height: 36px; background: #000; border: 1px solid #444; border-bottom: 2px solid #555;
             border-radius: 4px; color: var(--cyan); font-size: 1.1rem; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
-            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; text-transform: uppercase; transition: 0.2s;
         }
         .char-box.filled { border-color: var(--cyan); background: rgba(0, 243, 255, 0.05); }
         .char-box.active { border-color: var(--green); box-shadow: 0 0 10px rgba(10, 255, 10, 0.3); transform: translateY(-2px); }
         .char-space { width: 10px; border: none; background: transparent; }
-
-        /* --- CORREÇÃO PARA CELULAR (Responsividade das Caixas) --- */
+        
         @media (max-width: 400px) {
-            .char-box {
-                width: 20px; /* Menor largura */
-                height: 28px; /* Menor altura */
-                font-size: 0.9rem; /* Letra menor */
-                border-radius: 3px;
-                border-bottom-width: 1px;
-            }
-            #boxes-container {
-                gap: 2px; /* Espaço menor entre elas */
-            }
-            .char-space { width: 6px; }
+            .char-box { width: 20px; height: 28px; font-size: 0.9rem; border-radius: 3px; border-bottom-width: 1px; }
+            #boxes-container { gap: 2px; } .char-space { width: 6px; }
         }
-
-        /* Animação de Erro */
         .input-error .char-box { animation: shake 0.4s; border-color: var(--red) !important; }
 
         .btns { display: flex; gap: 10px; }
-        
         button.action { 
             padding: 15px; flex: 1; border: none; border-radius: 6px; 
             font-weight: bold; font-size: 1rem; cursor: pointer; font-family: inherit;
-            text-transform: uppercase; position: relative; overflow: hidden;
-            transition: transform 0.1s;
+            text-transform: uppercase; position: relative; overflow: hidden; transition: transform 0.1s;
         }
         button.action:active { transform: scale(0.98); }
-
         .btn-ok { background: var(--cyan); color: #000; flex: 1.5; box-shadow: 0 0 10px var(--cyan-dim); }
         .btn-func { background: #222; color: #aaa; border: 1px solid #444; flex: 1; font-size: 0.8rem; }
         .btn-func:disabled { opacity: 0.5; cursor: not-allowed; border-color: #333; color: #555; }
 
-        .msg { 
-            text-align: center; height: 25px; font-weight: bold; font-size: 1rem; 
-            margin-top: -5px; text-shadow: 0 0 5px currentColor;
-        }
+        .msg { text-align: center; height: 25px; font-weight: bold; font-size: 1rem; margin-top: -5px; text-shadow: 0 0 5px currentColor; }
 
         /* Overlays */
         .overlay { 
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; z-index: 200; text-align: center; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; padding: 20px;
         }
         .hidden { display: none !important; }
-        
         .btn-start { 
             background: transparent; color: var(--green); padding: 20px 60px; 
             font-size: 1.4rem; border: 2px solid var(--green); border-radius: 50px; 
@@ -196,54 +137,41 @@
 
         /* Relatório */
         .report-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; margin-bottom: 20px; 
-            text-align: left; background: var(--panel); padding: 20px; border: 1px solid #333; 
-            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; 
+            margin-bottom: 20px; text-align: left; background: var(--panel); padding: 20px; 
+            border: 1px solid #333; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .r-item { display: flex; flex-direction: column; gap: 5px; }
         .r-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         .r-val { font-size: 1.2rem; color: #fff; font-weight: bold; }
-        
         .site-link { 
-            margin-top: 25px; color: var(--cyan); text-decoration: none; 
-            border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 30px; 
-            font-size: 0.9rem; transition: 0.3s; display: inline-block;
+            margin-top: 25px; color: var(--cyan); text-decoration: none; border: 1px solid var(--cyan); 
+            padding: 10px 20px; border-radius: 30px; font-size: 0.9rem; transition: 0.3s; display: inline-block;
         }
         .site-link:hover { background: var(--cyan-dim); }
 
         /* Mini Game Canvas */
         #mg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 40; display: none; border-radius: 12px; cursor: col-resize; }
         .mg-overlay { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            color: #fff; text-align: center; width: 100%; pointer-events: none; z-index: 41; 
-            text-shadow: 0 2px 4px #000; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 12px;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; 
+            text-align: center; width: 100%; pointer-events: none; z-index: 41; text-shadow: 0 2px 4px #000; 
+            background: rgba(0,0,0,0.85); padding: 20px; border-radius: 12px; border: 1px solid var(--purple);
         }
-
-        /* Créditos */
         .author-mark {
-            position: fixed; bottom: 5px; right: 8px; font-size: 0.6rem; 
-            color: var(--cyan); opacity: 0.4; z-index: 1000; pointer-events: none;
-            text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
-            text-shadow: 0 0 2px var(--cyan);
+            position: fixed; bottom: 5px; right: 8px; font-size: 0.6rem; color: var(--cyan); 
+            opacity: 0.4; z-index: 1000; pointer-events: none; text-transform: uppercase; 
+            letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 2px var(--cyan);
         }
 
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake { 
-            0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 
-            50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } 
-        }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
         
         h1 { position: relative; }
         h1::before, h1::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
         h1::before { color: var(--red); z-index: -1; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
         h1::after { color: var(--cyan); z-index: -2; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite; }
-        
-        @keyframes glitch {
-            0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) }
-            40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) }
-            80% { transform: translate(2px, -2px) } 100% { transform: translate(0) }
-        }
+        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
     </style>
 </head>
 <body>
@@ -269,11 +197,7 @@
             <div class="hint" id="h"></div>
             <canvas id="mg-canvas"></canvas>
             <div id="mg-msg" class="mg-overlay hidden">
-                <h2 style="color:var(--yellow)">ALERTA DE BÔNUS</h2>
-                <p>Arraste para mover a nave.</p>
-                <p>Pegue <span style="color:var(--green)">VERDE</span>. Evite <span style="color:var(--red)">VERMELHO</span>.</p>
-                <p style="font-size:0.8rem; margin-top:10px;">Colete 5 para ganhar +1 Vida!</p>
-            </div>
+                </div>
         </div>
 
         <div class="msg" id="msg"></div>
@@ -387,7 +311,8 @@
         }
 
         function next() {
-            if ((st.score === 13 && !st.events.has(13)) || (st.score === 31 && !st.events.has(31))) {
+            // MINI GAME - A CADA 10 PONTOS (EX: 10, 20, 30...)
+            if (st.score > 0 && st.score % 10 === 0 && !st.events.has(st.score)) {
                 st.events.add(st.score);
                 startMiniGame();
                 return;
@@ -431,7 +356,6 @@
 
         document.getElementById('ans').addEventListener('input', function() {
             const val = this.value;
-            const boxes = document.querySelectorAll('#boxes-container .char-box:not(.filled)');
             const allBoxes = document.querySelectorAll('#boxes-container .char-box'); 
             
             allBoxes.forEach(b => { if(b.innerText !== '-') { b.innerText = ''; b.classList.remove('filled', 'active'); } });
@@ -515,13 +439,28 @@
             document.getElementById('prog-bar').style.width = pct + "%";
         }
 
-        // --- MINI GAME SYSTEM ---
-        let mg = { active: false, x: 0, items: [], score: 0, ctx: null, w: 0, h: 0 };
+        // --- MINI GAME 2.0 (MODOS ALEATÓRIOS) ---
+        let mg = { active: false, x: 0, items: [], score: 0, ctx: null, w: 0, h: 0, mode: 0 };
         
         function startMiniGame() {
             mg.active = true; mg.score = 0; mg.items = [];
+            
+            // Sorteia um modo: 0=Clássico, 1=Chuva de Vírus, 2=Turbo
+            mg.mode = Math.floor(Math.random() * 3);
+            let modeName = ["CLÁSSICO", "CHUVA DE VÍRUS", "TURBO"][mg.mode];
+            let modeColor = ["var(--green)", "var(--red)", "var(--yellow)"][mg.mode];
+
             const cvs = document.getElementById('mg-canvas');
             const msg = document.getElementById('mg-msg');
+            
+            // Mensagem Inicial
+            msg.innerHTML = `
+                <h2 style="color:var(--yellow)">ALERTA DE BÔNUS</h2>
+                <p style="font-size:1.2rem; color:${modeColor}; font-weight:bold; margin: 10px 0;">MODO: ${modeName}</p>
+                <p>Colete 10 VERDES para ganhar +1 Vida!</p>
+                <p style="font-size:0.8rem; margin-top:10px;">Arraste a nave</p>
+            `;
+            
             cvs.style.display = 'block'; msg.classList.remove('hidden');
             
             mg.ctx = cvs.getContext('2d');
@@ -538,17 +477,31 @@
 
         function spawnItem() {
             if (!mg.active) return;
-            let type = Math.random() > 0.7 ? 'bad' : 'good';
+            
+            // Configuração dos Modos
+            let badChance = 0.3; // Padrão
+            let speedBase = 3;
+            let spawnRate = 700;
+
+            if (mg.mode === 1) { badChance = 0.6; spawnRate = 500; } // Chuva de Vírus
+            if (mg.mode === 2) { speedBase = 6; spawnRate = 400; }   // Turbo
+
+            let type = Math.random() > (1 - badChance) ? 'bad' : 'good';
+            
             mg.items.push({ 
-                x: Math.random() * (mg.w - 20), y: -20, speed: 3 + Math.random() * 3, type: type
+                x: Math.random() * (mg.w - 20), 
+                y: -20, 
+                speed: speedBase + Math.random() * 3, 
+                type: type
             });
-            if (mg.active) setTimeout(spawnItem, 700);
+            if (mg.active) setTimeout(spawnItem, spawnRate);
         }
 
         function loopMiniGame() {
             if (!mg.active) return;
             mg.ctx.clearRect(0, 0, mg.w, mg.h);
             
+            // Desenha Nave
             mg.ctx.fillStyle = '#00f3ff';
             mg.ctx.fillRect(mg.x - 20, mg.h - 30, 40, 10);
             mg.ctx.beginPath(); mg.ctx.moveTo(mg.x, mg.h-40); mg.ctx.lineTo(mg.x-10, mg.h-30); mg.ctx.lineTo(mg.x+10, mg.h-30); mg.ctx.fill();
@@ -561,15 +514,16 @@
 
                 if (it.y > mg.h - 40 && it.y < mg.h - 10 && it.x > mg.x - 30 && it.x < mg.x + 30) {
                     if (it.type === 'good') mg.score++;
-                    else { endMiniGame(false); return; }
+                    else { endMiniGame(false); return; } // Tocou no vermelho = Perdeu
                     mg.items.splice(i, 1); i--;
                 } else if (it.y > mg.h) { mg.items.splice(i, 1); i--; }
             }
 
+            // Placar HUD
             mg.ctx.fillStyle = '#fff'; mg.ctx.font = '20px monospace';
-            mg.ctx.fillText("COLETE: " + mg.score + "/5", 10, 30);
+            mg.ctx.fillText("COLETE: " + mg.score + "/10", 10, 30);
 
-            if (mg.score >= 5) endMiniGame(true);
+            if (mg.score >= 10) endMiniGame(true);
             else requestAnimationFrame(loopMiniGame);
         }
 
@@ -580,7 +534,7 @@
                 msg.innerHTML = "<h2 style='color:var(--green)'>SUCESSO!</h2><p>+1 VIDA EXTRA</p>";
                 st.lives++;
             } else {
-                msg.innerHTML = "<h2 style='color:var(--red)'>FALHA!</h2><p>Cuidado com os vírus!</p>";
+                msg.innerHTML = "<h2 style='color:var(--red)'>FALHA!</h2><p>Vírus detectado!</p>";
             }
             msg.classList.remove('hidden');
             updateHUD();
