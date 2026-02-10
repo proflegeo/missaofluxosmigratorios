@@ -7,16 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --bg: #030305; 
-            --cyan: #00f3ff; 
-            --cyan-dim: rgba(0, 243, 255, 0.2);
-            --green: #0aff0a; 
-            --red: #ff003c; 
-            --purple: #bd00ff; 
-            --yellow: #f8e71c; 
-            --panel: #0d0d10;
+            --bg: #030305; --cyan: #00f3ff; --cyan-dim: rgba(0, 243, 255, 0.2);
+            --green: #0aff0a; --red: #ff003c; --purple: #bd00ff; 
+            --yellow: #f8e71c; --panel: #0d0d10;
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         body { 
@@ -25,19 +19,14 @@
             background-image: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
-        #game { 
-            width: 100%; max-width: 600px; height: 100%; padding: 15px; 
-            display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 2; 
-        }
+        #game { width: 100%; max-width: 600px; height: 100%; padding: 15px; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 2; }
         
-        /* Scanlines */
         body::after {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
         }
 
-        /* HUD */
         .hud { 
             display: flex; justify-content: space-between; align-items: center; 
             background: var(--panel); border: 1px solid #333; padding: 10px 15px; 
@@ -55,7 +44,6 @@
         .prog-box { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; border: 1px solid #333; }
         .prog-bar { height: 100%; background: var(--green); width: 0%; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green); }
 
-        /* Tela Principal */
         .screen { 
             background: rgba(10, 10, 12, 0.8); border: 1px solid #333;
             border-top: 2px solid var(--purple); border-bottom: 2px solid var(--purple); 
@@ -77,33 +65,44 @@
         }
         .show { display: block; animation: fadeIn 0.5s; }
 
-        /* Controles */
         .controls { 
             display: flex; flex-direction: column; gap: 12px; 
             padding-bottom: env(safe-area-inset-bottom); background: var(--panel); 
             padding: 15px; border-radius: 12px; border: 1px solid #333;
         }
         
-        /* Caixinhas Dinâmicas */
         .input-wrapper { position: relative; width: 100%; min-height: 40px; display: flex; justify-content: center; }
+        
         input { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             opacity: 0; z-index: 10; cursor: text; font-size: 16px; 
             color: transparent; background: transparent; border: none; outline: none; caret-color: transparent;
         }
-        #boxes-container { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; width: 100%; pointer-events: none; }
+
+        /* --- CORREÇÃO DA QUEBRA DE LINHA --- */
+        #boxes-container {
+            display: flex; flex-wrap: wrap; gap: 10px; /* Gap maior entre palavras */
+            justify-content: center; width: 100%; pointer-events: none;
+            align-content: center;
+        }
+        /* Agrupa letras de uma palavra para não quebrar no meio */
+        .word-group {
+            display: flex; gap: 4px; /* Gap entre letras */
+        }
+
         .char-box {
             width: 26px; height: 36px; background: #000; border: 1px solid #444; border-bottom: 2px solid #555;
             border-radius: 4px; color: var(--cyan); font-size: 1.1rem; font-weight: bold;
-            display: flex; align-items: center; justify-content: center; text-transform: uppercase; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; text-transform: uppercase;
+            transition: 0.2s;
         }
         .char-box.filled { border-color: var(--cyan); background: rgba(0, 243, 255, 0.05); }
         .char-box.active { border-color: var(--green); box-shadow: 0 0 10px rgba(10, 255, 10, 0.3); transform: translateY(-2px); }
-        .char-space { width: 10px; border: none; background: transparent; }
         
         @media (max-width: 400px) {
             .char-box { width: 20px; height: 28px; font-size: 0.9rem; border-radius: 3px; border-bottom-width: 1px; }
-            #boxes-container { gap: 2px; } .char-space { width: 6px; }
+            .word-group { gap: 2px; }
+            #boxes-container { gap: 6px; }
         }
         .input-error .char-box { animation: shake 0.4s; border-color: var(--red) !important; }
 
@@ -120,7 +119,6 @@
 
         .msg { text-align: center; height: 25px; font-weight: bold; font-size: 1rem; margin-top: -5px; text-shadow: 0 0 5px currentColor; }
 
-        /* Overlays */
         .overlay { 
             position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 200; text-align: center; padding: 20px;
@@ -135,7 +133,6 @@
         }
         .btn-start:hover { background: var(--green); color: #000; box-shadow: 0 0 30px rgba(10, 255, 10, 0.6); }
 
-        /* Relatório */
         .report-grid { 
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; 
             margin-bottom: 20px; text-align: left; background: var(--panel); padding: 20px; 
@@ -150,7 +147,6 @@
         }
         .site-link:hover { background: var(--cyan-dim); }
 
-        /* Mini Game Canvas */
         #mg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 40; display: none; border-radius: 12px; cursor: col-resize; }
         .mg-overlay { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #fff; 
@@ -197,7 +193,11 @@
             <div class="hint" id="h"></div>
             <canvas id="mg-canvas"></canvas>
             <div id="mg-msg" class="mg-overlay hidden">
-                </div>
+                <h2 style="color:var(--yellow)">ALERTA DE BÔNUS</h2>
+                <p>Arraste para mover a nave.</p>
+                <p>Pegue <span style="color:var(--green)">VERDE</span>. Evite <span style="color:var(--red)">VERMELHO</span>.</p>
+                <p style="font-size:0.8rem; margin-top:10px;">Colete 5 para ganhar +1 Vida!</p>
+            </div>
         </div>
 
         <div class="msg" id="msg"></div>
@@ -311,7 +311,7 @@
         }
 
         function next() {
-            // MINI GAME - A CADA 10 PONTOS (EX: 10, 20, 30...)
+            // Verifica Mini Game (dispara no acerto 10, 20, 30...)
             if (st.score > 0 && st.score % 10 === 0 && !st.events.has(st.score)) {
                 st.events.add(st.score);
                 startMiniGame();
@@ -333,39 +333,59 @@
             renderBoxes(st.c.t);
         }
 
+        // --- NOVA FUNÇÃO DE RENDERIZAÇÃO (AGRUPA POR PALAVRAS) ---
         function renderBoxes(answerText) {
             const container = document.getElementById('boxes-container');
             container.innerHTML = '';
-            for (let char of answerText) {
-                if (char === ' ') {
-                    let sp = document.createElement('div');
-                    sp.className = 'char-space';
-                    container.appendChild(sp);
-                } else if (char === '-') {
-                    let dash = document.createElement('div');
-                    dash.className = 'char-box filled';
-                    dash.innerText = '-';
-                    container.appendChild(dash);
-                } else {
-                    let box = document.createElement('div');
-                    box.className = 'char-box';
-                    container.appendChild(box);
+            
+            // Separa por palavras (respeitando espaços)
+            const words = answerText.split(' ');
+
+            words.forEach((word, index) => {
+                // Cria um grupo (div) para cada palavra
+                const wordGroup = document.createElement('div');
+                wordGroup.className = 'word-group';
+
+                for (let char of word) {
+                    if (char === '-') {
+                        let dash = document.createElement('div');
+                        dash.className = 'char-box filled';
+                        dash.innerText = '-';
+                        wordGroup.appendChild(dash);
+                    } else {
+                        let box = document.createElement('div');
+                        box.className = 'char-box';
+                        wordGroup.appendChild(box);
+                    }
                 }
-            }
+                
+                container.appendChild(wordGroup);
+            });
         }
 
+        // Lógica de preenchimento visual ajustada para ignorar espaços no input
         document.getElementById('ans').addEventListener('input', function() {
-            const val = this.value;
-            const allBoxes = document.querySelectorAll('#boxes-container .char-box'); 
+            // Remove espaços do que foi digitado para bater com as caixinhas (que não têm espaço)
+            const val = this.value.replace(/\s/g, ''); 
             
-            allBoxes.forEach(b => { if(b.innerText !== '-') { b.innerText = ''; b.classList.remove('filled', 'active'); } });
+            const allBoxes = document.querySelectorAll('.char-box'); 
+            
+            // Limpa tudo primeiro
+            allBoxes.forEach(b => { 
+                if(b.innerText !== '-') { 
+                    b.innerText = ''; 
+                    b.classList.remove('filled', 'active'); 
+                } 
+            });
 
             let valIndex = 0;
-            allBoxes.forEach((box, i) => {
-                if (box.innerText === '-') return; 
+            allBoxes.forEach((box) => {
+                if (box.innerText === '-') return; // Pula hífens
+                
                 if (valIndex < val.length) {
                     box.innerText = val[valIndex];
                     box.classList.add('filled');
+                    // Efeito de destaque na última letra digitada
                     if (valIndex === val.length - 1) box.classList.add('active'); 
                     valIndex++;
                 }
@@ -439,13 +459,11 @@
             document.getElementById('prog-bar').style.width = pct + "%";
         }
 
-        // --- MINI GAME 2.0 (MODOS ALEATÓRIOS) ---
+        // --- MINI GAME SYSTEM ---
         let mg = { active: false, x: 0, items: [], score: 0, ctx: null, w: 0, h: 0, mode: 0 };
         
         function startMiniGame() {
             mg.active = true; mg.score = 0; mg.items = [];
-            
-            // Sorteia um modo: 0=Clássico, 1=Chuva de Vírus, 2=Turbo
             mg.mode = Math.floor(Math.random() * 3);
             let modeName = ["CLÁSSICO", "CHUVA DE VÍRUS", "TURBO"][mg.mode];
             let modeColor = ["var(--green)", "var(--red)", "var(--yellow)"][mg.mode];
@@ -453,7 +471,6 @@
             const cvs = document.getElementById('mg-canvas');
             const msg = document.getElementById('mg-msg');
             
-            // Mensagem Inicial
             msg.innerHTML = `
                 <h2 style="color:var(--yellow)">ALERTA DE BÔNUS</h2>
                 <p style="font-size:1.2rem; color:${modeColor}; font-weight:bold; margin: 10px 0;">MODO: ${modeName}</p>
@@ -462,7 +479,6 @@
             `;
             
             cvs.style.display = 'block'; msg.classList.remove('hidden');
-            
             mg.ctx = cvs.getContext('2d');
             mg.w = cvs.width = cvs.offsetWidth;
             mg.h = cvs.height = cvs.offsetHeight;
@@ -477,22 +493,13 @@
 
         function spawnItem() {
             if (!mg.active) return;
-            
-            // Configuração dos Modos
-            let badChance = 0.3; // Padrão
-            let speedBase = 3;
-            let spawnRate = 700;
-
-            if (mg.mode === 1) { badChance = 0.6; spawnRate = 500; } // Chuva de Vírus
-            if (mg.mode === 2) { speedBase = 6; spawnRate = 400; }   // Turbo
+            let badChance = 0.3; let speedBase = 3; let spawnRate = 700;
+            if (mg.mode === 1) { badChance = 0.6; spawnRate = 500; }
+            if (mg.mode === 2) { speedBase = 6; spawnRate = 400; }
 
             let type = Math.random() > (1 - badChance) ? 'bad' : 'good';
-            
             mg.items.push({ 
-                x: Math.random() * (mg.w - 20), 
-                y: -20, 
-                speed: speedBase + Math.random() * 3, 
-                type: type
+                x: Math.random() * (mg.w - 20), y: -20, speed: speedBase + Math.random() * 3, type: type
             });
             if (mg.active) setTimeout(spawnItem, spawnRate);
         }
@@ -501,7 +508,6 @@
             if (!mg.active) return;
             mg.ctx.clearRect(0, 0, mg.w, mg.h);
             
-            // Desenha Nave
             mg.ctx.fillStyle = '#00f3ff';
             mg.ctx.fillRect(mg.x - 20, mg.h - 30, 40, 10);
             mg.ctx.beginPath(); mg.ctx.moveTo(mg.x, mg.h-40); mg.ctx.lineTo(mg.x-10, mg.h-30); mg.ctx.lineTo(mg.x+10, mg.h-30); mg.ctx.fill();
@@ -514,12 +520,11 @@
 
                 if (it.y > mg.h - 40 && it.y < mg.h - 10 && it.x > mg.x - 30 && it.x < mg.x + 30) {
                     if (it.type === 'good') mg.score++;
-                    else { endMiniGame(false); return; } // Tocou no vermelho = Perdeu
+                    else { endMiniGame(false); return; }
                     mg.items.splice(i, 1); i--;
                 } else if (it.y > mg.h) { mg.items.splice(i, 1); i--; }
             }
 
-            // Placar HUD
             mg.ctx.fillStyle = '#fff'; mg.ctx.font = '20px monospace';
             mg.ctx.fillText("COLETE: " + mg.score + "/10", 10, 30);
 
