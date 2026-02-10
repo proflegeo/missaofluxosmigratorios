@@ -120,7 +120,8 @@
         }
         input:focus { border-color: var(--cyan); box-shadow: 0 0 15px var(--cyan-dim); }
         input::placeholder { color: #444; font-size: 1rem; }
-        /* Classe para input inválido (piscar vermelho) */
+        
+        /* Animação de Erro (Shake) */
         .input-error { animation: shake 0.4s; border-color: var(--red) !important; }
 
         .btns { display: flex; gap: 10px; }
@@ -184,6 +185,14 @@
             text-shadow: 0 2px 4px #000; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 12px;
         }
 
+        /* Créditos */
+        .author-mark {
+            position: fixed; bottom: 5px; right: 8px; font-size: 0.6rem; 
+            color: var(--cyan); opacity: 0.4; z-index: 1000; pointer-events: none;
+            text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
+            text-shadow: 0 0 2px var(--cyan);
+        }
+
         @keyframes blink { 50% { opacity: 0; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shake { 
@@ -204,6 +213,8 @@
     </style>
 </head>
 <body>
+
+    <div class="author-mark">DEV: PROF. LEGEO</div>
 
     <div id="game">
         <div class="hud">
@@ -266,7 +277,7 @@
             { t: "Fuga de cérebros", d: "Saída de profissionais altamente qualificados para países ricos.", h: "Perda de cientistas." },
             { t: "Refugiado", d: "Pessoa que fugiu por perseguição (raça, religião, política).", h: "Protegido pela ONU." },
             { t: "Asilo", d: "Proteção jurídica pedida a outro governo por perseguição política.", h: "Proteção política." },
-            { t: "Deslocado interno", d: "Fugitivos de conflitos que não cruzaram fronteiras internacionais.", h: "Refugiado dentro do próprio país." },
+            { t: "Deslocados internos", d: "Fugitivos de conflitos que não cruzaram fronteiras internacionais.", h: "Refugiado dentro do próprio país." },
             { t: "Apátrida", d: "Pessoa sem nacionalidade reconhecida por nenhum país.", h: "Sem pátria." },
             { t: "Xenofobia", d: "Aversão, ódio ou preconceito contra estrangeiros.", h: "Medo do estrangeiro." },
             { t: "Coiote", d: "Atravessador pago para guiar imigrantes ilegais.", h: "Guia ilegal na fronteira." },
@@ -339,6 +350,7 @@
         }
 
         function next() {
+            // Verifica Mini Game (dispara no acerto 13 e 31)
             if ((st.score === 13 && !st.events.has(13)) || (st.score === 31 && !st.events.has(31))) {
                 st.events.add(st.score);
                 startMiniGame();
@@ -416,6 +428,7 @@
             document.getElementById('lives').innerText = "❤️".repeat(st.lives);
             document.getElementById('hints-txt').innerText = "💡 x" + st.hints;
             document.getElementById('skips-txt').innerText = "⏭️ x" + st.skips;
+            
             document.getElementById('btn-hint').disabled = st.hints <= 0;
             document.getElementById('btn-skip').disabled = st.skips <= 0;
         }
