@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Protocolo M.I.G.R.A.Ç.Ã.O.</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #030305; 
+            --cyan: #00f3ff; 
+            --cyan-dim: rgba(0, 243, 255, 0.2);
+            --green: #0aff0a; 
+            --red: #ff003c; 
+            --purple: #bd00ff; 
+            --yellow: #f8e71c; 
+            --panel: #0d0d10;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body { 
+            background: var(--bg); 
+            color: #e0e0e0; 
+            font-family: 'JetBrains Mono', monospace; 
+            margin: 0; 
+            height: 100dvh; /* Altura real do dispositivo */
+            display: flex; 
+            justify-content: center; 
+            overflow: hidden; 
+            background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        #game { 
+            width: 100%; 
+            max-width: 600px; 
+            height: 100%; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            position: relative; 
+            z-index: 2;
+        }
+        
+        /* Efeito de TV Antiga (Scanlines) */
+        body::after {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        /* HUD */
+        .hud { 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: var(--panel); border: 1px solid #333; padding: 10px 15px; 
+            border-radius: 8px; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .hud-left { display: flex; align-items: center; gap: 10px; }
+        .hud-right { display: flex; align-items: center; gap: 15px; } 
+
+        .hud-btn { 
+            background: transparent; border: 1px solid var(--purple); color: var(--purple); 
+            padding: 6px 12px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s; font-family: inherit;
+        }
+        .hud-btn:active { background: var(--purple); color: #fff; }
+        
+        /* Barra de Progresso */
+        .prog-box { 
+            width: 100%; height: 6px; background: #222; border-radius: 3px; 
+            overflow: hidden; border: 1px solid #333;
+        }
+        .prog-bar { 
+            height: 100%; background: var(--green); width: 0%; 
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--green);
+        }
+
+        /* Tela Principal */
+        .screen { 
+            background: rgba(10, 10, 12, 0.8); border: 1px solid #333;
+            border-top: 2px solid var(--purple); border-bottom: 2px solid var(--purple); 
+            padding: 20px; flex-grow: 1; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center; 
+            border-radius: 12px; position: relative; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .def { 
+            font-size: 1.3rem; line-height: 1.6; font-weight: 500; color: #fff;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3); min-height: 60px;
+            /* Garante que palavras não colem no iPhone */
+            white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;
+        }
+        @media (max-width: 380px) { .def { font-size: 1.1rem; } }
+
+        .def::after { 
+            content: '█'; animation: blink 1s steps(2) infinite; color: var(--cyan); 
+            font-size: 1.2rem; margin-left: 5px; opacity: 0.8;
+        }
+
+        .hint { 
+            color: var(--yellow); background: rgba(248, 231, 28, 0.1);
+            border: 1px solid var(--yellow); border-radius: 6px;
+            margin-top: 15px; font-size: 0.95rem; padding: 10px; display: none; width: 100%; 
+        }
+        .show { display: block; animation: fadeIn 0.5s; }
+
+        /* Controles */
+        .controls { 
+            display: flex; flex-direction: column; gap: 12px; 
+            padding-bottom: env(safe-area-inset-bottom); 
+            background: var(--panel); padding: 15px;
+            border-radius: 12px; border: 1px solid #333;
+        }
+
+        input { 
+            background: #000; border: 1px solid #444; border-bottom: 2px solid #555;
+            color: var(--cyan); padding: 15px; width: 100%; font-size: 16px; /* 16px evita zoom */
+            border-radius: 6px; text-transform: uppercase; outline: none; text-align: center; 
+            font-family: inherit; letter-spacing: 1px; transition: 0.3s;
+        }
+        input:focus { border-color: var(--cyan); box-shadow: 0 0 15px var(--cyan-dim); }
+        input::placeholder { color: #444; font-size: 1rem; }
+
+        .btns { display: flex; gap: 10px; }
+        
+        button.action { 
+            padding: 15px; flex: 1; border: none; border-radius: 6px; 
+            font-weight: bold; font-size: 1rem; cursor: pointer; font-family: inherit;
+            text-transform: uppercase; position: relative; overflow: hidden;
+            transition: transform 0.1s;
+        }
+        button.action:active { transform: scale(0.98); }
+
+        .btn-ok { background: var(--cyan); color: #000; flex: 1.5; box-shadow: 0 0 10px var(--cyan-dim); }
+        .btn-func { background: #222; color: #aaa; border: 1px solid #444; flex: 1; font-size: 0.8rem; }
+        .btn-func:disabled { opacity: 0.5; cursor: not-allowed; border-color: #333; color: #555; }
+
+        .msg { 
+            text-align: center; height: 25px; font-weight: bold; font-size: 1rem; 
+            margin-top: -5px; text-shadow: 0 0 5px currentColor;
+        }
+
+        /* Overlays */
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(5, 5, 5, 0.95); 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; z-index: 200; text-align: center; padding: 20px;
+        }
+        .hidden { display: none !important; }
+        
+        .btn-start { 
+            background: transparent; color: var(--green); padding: 20px 60px; 
+            font-size: 1.4rem; border: 2px solid var(--green); border-radius: 50px; 
+            margin-top: 30px; font-weight: bold; cursor: pointer; font-family: inherit; 
+            text-transform: uppercase; letter-spacing: 2px; 
+            box-shadow: 0 0 15px rgba(10, 255, 10, 0.2); transition: 0.3s;
+        }
+        .btn-start:hover { background: var(--green); color: #000; box-shadow: 0 0 30px rgba(10, 255, 10, 0.6); }
+
+        /* Relatório */
+        .report-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; margin-bottom: 20px; 
+            text-align: left; background: var(--panel); padding: 20px; border: 1px solid #333; 
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .r-item { display: flex; flex-direction: column; gap: 5px; }
+        .r-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        .r-val { font-size: 1.2rem; color: #fff; font-weight: bold; }
+        
+        .site-link { 
+            margin-top: 25px; color: var(--cyan); text-decoration: none; 
+            border: 1px solid var(--cyan); padding: 10px 20px; border-radius: 30px; 
+            font-size: 0.9rem; transition: 0.3s; display: inline-block;
+        }
+        .site-link:hover { background: var(--cyan-dim); }
+
+        /* Mini Game Canvas */
+        #mg-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 40; display: none; border-radius: 12px; }
+        .mg-overlay { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            color: #fff; text-align: center; width: 100%; pointer-events: none; z-index: 41; 
+            text-shadow: 0 2px 4px #000; background: rgba(0,0,0,0.7); padding: 20px;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Título Glitch */
+        h1 { position: relative; }
+        h1::before, h1::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; }
+        h1::before { color: var(--red); z-index: -1; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
+        h1::after { color: var(--cyan); z-index: -2; animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) reverse both infinite; }
+        
+        @keyframes glitch {
+            0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) } 100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game">
+        <div class="hud">
+            <div class="hud-left">
+                <span id="lives">❤️❤️❤️❤️❤️</span> 
+                <button class="hud-btn" onclick="init()">REINICIAR</button>
+            </div>
+            <div class="hud-right">
+                <span id="hints-txt" style="color:var(--yellow)">💡 x3</span>
+                <span id="skips-txt" style="color:var(--cyan)">⏭️ x5</span>
+            </div>
+        </div>
+
+        <div class="prog-box"><div class="prog-bar" id="prog-bar"></div></div>
+        
+        <div class="screen">
+            <div class="def" id="q"></div>
+            <div class="hint" id="h"></div>
+            <canvas id="mg-canvas"></canvas>
+            <div id="mg-msg" class="mg-overlay hidden">
+                <h2 style="color:var(--yellow)">ALERTA DE BÔNUS</h2>
+                <p>Colete 5 energias para ganhar +1 Vida!</p>
+                <p style="font-size:0.8rem; margin-top:10px;">Toque na ESQUERDA ou DIREITA</p>
+            </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="controls">
+            <input type="text" id="ans" placeholder="DIGITE AQUI..." autocomplete="off">
+            <div class="btns">
+                <button class="action btn-ok" onclick="check()">ENVIAR</button>
+                <button class="action btn-func" onclick="tip()" id="btn-hint">DICA</button>
+                <button class="action btn-func" onclick="skip()" id="btn-skip">PULAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="start" class="overlay">
+        <h1 style="color:var(--cyan); margin-bottom: 10px;" data-text="M.I.G.R.A.Ç.Ã.O.">M.I.G.R.A.Ç.Ã.O.</h1>
+        <p style="color: #aaa; font-size: 0.9rem;">Restaurar sistema de navegação.</p>
+        <button class="btn-start" onclick="init()">INICIAR</button>
+    </div>
+
+    <script>
+        // Banco de Dados com 50 Itens
+        const db = [
+            { t: "Migração", d: "Termo geral para qualquer deslocamento de pessoas pelo espaço geográfico.", h: "Definição geral de mudar de lugar." },
+            { t: "Emigração", d: "Ato de SAIR do seu local de origem para viver em outro lugar.", h: "Exit / Saída." },
+            { t: "Imigração", d: "Ato de CHEGAR e entrar em um novo local para viver.", h: "In / Entrada." },
+            { t: "Migração interna", d: "Deslocamento de pessoas dentro das fronteiras de um mesmo país.", h: "Não sai do país." },
+            { t: "Migração internacional", d: "Deslocamento de pessoas entre países diferentes.", h: "Entre nações." },
+            { t: "Migração pendular", d: "Movimento diário de vai e vem (casa-trabalho).", h: "Como um pêndulo." },
+            { t: "Migração sazonal", d: "Deslocamento ligado apenas a estações do ano ou colheitas.", h: "Temporário por estação." },
+            { t: "Transumância", d: "Migração sazonal ligada à criação de gado ou colheitas.", h: "Pastores e gado." },
+            { t: "Êxodo Rural", d: "Migração em massa do campo para a cidade.", h: "Saída do campo." },
+            { t: "Migração urbano-urbano", d: "Mudança de uma cidade para outra cidade.", h: "Entre zonas urbanas." },
+            { t: "Migração de retorno", d: "A volta do migrante para sua terra natal.", h: "O bom filho à casa torna." },
+            { t: "Diáspora", d: "Dispersão de um povo pelo mundo mantendo identidade cultural.", h: "Ex: Judeus ou Africanos." },
+            { t: "Fuga de cérebros", d: "Saída de profissionais altamente qualificados para países ricos.", h: "Perda de cientistas." },
+            { t: "Refugiado", d: "Pessoa que fugiu por perseguição (raça, religião, política).", h: "Protegido pela ONU." },
+            { t: "Asilo", d: "Proteção jurídica pedida a outro governo por perseguição política.", h: "Proteção política." },
+            { t: "Deslocado interno", d: "Fugitivos de conflitos que não cruzaram fronteiras internacionais.", h: "Refugiado dentro do próprio país." },
+            { t: "Apátrida", d: "Pessoa sem nacionalidade reconhecida por nenhum país.", h: "Sem pátria." },
+            { t: "Xenofobia", d: "Aversão, ódio ou preconceito contra estrangeiros.", h: "Medo do estrangeiro." },
+            { t: "Coiote", d: "Atravessador pago para guiar imigrantes ilegais.", h: "Guia ilegal na fronteira." },
+            { t: "Deportar", d: "Ato do Estado de enviar forçadamente estrangeiro de volta.", h: "Expulsão legal." },
+            { t: "Naturalização", d: "Processo jurídico para adquirir nacionalidade de outro país.", h: "Tornar-se cidadão." },
+            { t: "Visto", d: "Autorização no passaporte para entrar em um país.", h: "Carimbo consular." },
+            { t: "Passaporte", d: "Documento oficial de identidade para viagens internacionais.", h: "Documento de viagem." },
+            { t: "Fronteira", d: "Linha imaginária ou física que separa dois países ou estados.", h: "Divisa internacional." },
+            { t: "Tráfico humano", d: "Recrutamento enganoso/forçado de pessoas para exploração.", h: "Crime contra a liberdade." },
+            { t: "ACNUR", d: "Agência da ONU para refugiados.", h: "Sigla da ONU." },
+            { t: "Campo de refugiados", d: "Assentamento temporário para receber pessoas fugindo de guerras.", h: "Abrigo provisório da ONU." },
+            { t: "Remessas financeiras", d: "Dinheiro enviado por trabalhadores no exterior para a família.", h: "Envio de dólares para casa." },
+            { t: "Assimilação cultural", d: "Quando o imigrante perde sua cultura original e adota a local.", h: "Perda de identidade." },
+            { t: "Multiculturalismo", d: "Coexistência de diversas culturas no mesmo território.", h: "Várias culturas juntas." },
+            { t: "Segregação", d: "Separação física ou social de grupos humanos.", h: "Apartheid é um exemplo." },
+            { t: "Gueto", d: "Área de uma cidade onde vive uma minoria étnica ou social.", h: "Bairro isolado." },
+            { t: "Enclave étnico", d: "Pequeno território culturalmente distinto dentro de outro maior.", h: "Ex: Chinatown." },
+            { t: "Cidadania", d: "Conjunto de direitos e deveres de um indivíduo em um Estado.", h: "Direito de pertencer." },
+            { t: "Dupla cidadania", d: "Possuir nacionalidade de dois países ao mesmo tempo.", h: "Dois passaportes." },
+            { t: "Imigrante ilegal", d: "Pessoa que entra ou vive em um país sem autorização oficial.", h: "Indocumentado." },
+            { t: "Anistia", d: "Perdão oficial do governo para regularizar imigrantes ilegais.", h: "Perdão." },
+            { t: "Espaço Schengen", d: "Área na Europa de livre circulação de pessoas sem fronteiras.", h: "Livre circulação na UE." },
+            { t: "Green Card", d: "Visto de residência permanente nos Estados Unidos.", h: "Cartão verde dos EUA." },
+            { t: "Fatores de atração", d: "Motivos positivos que puxam o migrante (ex: emprego).", h: "O que atrai." },
+            { t: "Fatores de repulsão", d: "Motivos negativos que empurram a pessoa para fora (ex: guerra).", h: "O que expulsa." },
+            { t: "Globalização", d: "Processo de integração econômica e cultural mundial.", h: "Mundo interligado." },
+            { t: "Demografia", d: "Ciência que estuda a dinâmica das populações humanas.", h: "Estudo da população." },
+            { t: "Censo", d: "Pesquisa oficial do governo para contar a população.", h: "IBGE faz a cada 10 anos." },
+            { t: "Saldo migratório", d: "Diferença entre número de imigrantes e emigrantes.", h: "Conta: Entradas - Saídas." },
+            { t: "Crescimento vegetativo", d: "Diferença entre nascimentos e mortes.", h: "Crescimento natural." },
+            { t: "Cidade dormitório", d: "Cidade onde a população dorme mas trabalha na vizinha.", h: "Serve apenas para residência." },
+            { t: "Nômade digital", d: "Profissional que usa internet para trabalhar viajando.", h: "Trabalho remoto pelo mundo." },
+            { t: "Expatriado", d: "Profissional transferido pela empresa para outro país.", h: "Executivo internacional." },
+            { t: "Migração intermunicipal", d: "Mudança de residência de uma cidade para outra.", h: "Entre municípios." }
+        ];
+
+        let st = { 
+            q: [], c: null, lives: 5, hints: 3, skips: 5, 
+            score: 0, errors: 0, streak: 0, maxStreak: 0, 
+            startTime: 0, 
+            events: new Set() // Controla se o minigame já rolou
+        };
+        let typeInterval;
+
+        function init() {
+            st.q = [...db].sort(() => Math.random() - 0.5); 
+            st.lives = 5; st.hints = 3; st.skips = 5;
+            st.score = 0; st.errors = 0; st.streak = 0; st.maxStreak = 0;
+            st.events.clear();
+            st.startTime = Date.now();
+            
+            document.getElementById('start').classList.add('hidden');
+            updateHUD();
+            document.getElementById('prog-bar').style.width = "0%";
+            next();
+        }
+
+        function norm(str) {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+
+        function typeWriter(text) {
+            const el = document.getElementById('q');
+            el.innerText = ""; clearInterval(typeInterval);
+            let i = 0;
+            typeInterval = setInterval(() => {
+                el.innerText += text.charAt(i); i++;
+                if (i >= text.length) clearInterval(typeInterval);
+            }, 25);
+        }
+
+        function next() {
+            // Verifica Mini Game (dispara no acerto 13 e 31)
+            if ((st.score === 13 && !st.events.has(13)) || (st.score === 31 && !st.events.has(31))) {
+                st.events.add(st.score);
+                startMiniGame();
+                return;
+            }
+
+            if (!st.q.length || st.lives <= 0) return end();
+            
+            st.c = st.q.shift(); 
+            typeWriter(st.c.d);
+
+            document.getElementById('h').classList.remove('show');
+            document.getElementById('ans').value = '';
+            document.getElementById('msg').innerText = '';
+            document.getElementById('ans').focus();
+        }
+
+        function check() {
+            let v = norm(document.getElementById('ans').value);
+            let r = norm(st.c.t);
+            let alt = st.c.a ? st.c.a.map(norm) : [];
+
+            const msgEl = document.getElementById('msg');
+
+            if (v === r || alt.includes(v)) {
+                st.score++; st.streak++;
+                if (st.streak > st.maxStreak) st.maxStreak = st.streak;
+                
+                msgEl.innerText = "✅ CORRETO!";
+                msgEl.style.color = "var(--green)";
+                updateProgress();
+                setTimeout(next, 1000);
+            } else {
+                st.lives--; st.errors++; st.streak = 0;
+                msgEl.innerText = "❌ ERA: " + st.c.t.toUpperCase();
+                msgEl.style.color = "var(--red)";
+                
+                st.q.push(st.c); // Reinsere a pergunta no fim
+                
+                updateHUD();
+                setTimeout(next, 2500);
+            }
+        }
+
+        function skip() {
+            if (st.skips > 0) {
+                st.skips--;
+                st.q.push(st.c);
+                document.getElementById('msg').innerText = "⏭️ PULOU";
+                document.getElementById('msg').style.color = "var(--cyan)";
+                updateHUD();
+                setTimeout(next, 500);
+            }
+        }
+
+        function tip() {
+            if (st.hints > 0) {
+                st.hints--;
+                document.getElementById('h').innerText = "💡 " + st.c.h;
+                document.getElementById('h').classList.add('show');
+                updateHUD();
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('lives').innerText = "❤️".repeat(st.lives);
+            document.getElementById('hints-txt').innerText = "💡 x" + st.hints;
+            document.getElementById('skips-txt').innerText = "⏭️ x" + st.skips;
+            
+            document.getElementById('btn-hint').disabled = st.hints <= 0;
+            document.getElementById('btn-skip').disabled = st.skips <= 0;
+        }
+
+        function updateProgress() {
+            let pct = Math.min((st.score / 50) * 100, 100);
+            document.getElementById('prog-bar').style.width = pct + "%";
+        }
+
+        // --- MINI GAME SYSTEM ---
+        let mg = { active: false, x: 0, items: [], score: 0, ctx: null, w: 0, h: 0 };
+        
+        function startMiniGame() {
+            mg.active = true; mg.score = 0; mg.items = [];
+            const cvs = document.getElementById('mg-canvas');
+            const msg = document.getElementById('mg-msg');
+            cvs.style.display = 'block'; msg.classList.remove('hidden');
+            
+            mg.ctx = cvs.getContext('2d');
+            mg.w = cvs.width = cvs.offsetWidth;
+            mg.h = cvs.height = cvs.offsetHeight;
+            mg.x = mg.w / 2;
+
+            setTimeout(() => {
+                msg.classList.add('hidden');
+                loopMiniGame();
+                spawnItem();
+            }, 3000);
+        }
+
+        function spawnItem() {
+            if (!mg.active) return;
+            mg.items.push({ x: Math.random() * (mg.w - 20), y: -20, speed: 3 + Math.random() * 2 });
+            if (mg.score < 5) setTimeout(spawnItem, 800);
+        }
+
+        function loopMiniGame() {
+            if (!mg.active) return;
+            mg.ctx.clearRect(0, 0, mg.w, mg.h);
+            
+            // Desenha Nave
+            mg.ctx.fillStyle = '#00f3ff';
+            mg.ctx.fillRect(mg.x - 20, mg.h - 30, 40, 10);
+            mg.ctx.beginPath(); mg.ctx.moveTo(mg.x, mg.h-40); mg.ctx.lineTo(mg.x-10, mg.h-30); mg.ctx.lineTo(mg.x+10, mg.h-30); mg.ctx.fill();
+
+            // Desenha Energia
+            mg.ctx.fillStyle = '#0aff0a';
+            for (let i = 0; i < mg.items.length; i++) {
+                let it = mg.items[i];
+                it.y += it.speed;
+                mg.ctx.beginPath(); mg.ctx.arc(it.x, it.y, 8, 0, Math.PI*2); mg.ctx.fill();
+
+                if (it.y > mg.h - 40 && it.y < mg.h - 10 && it.x > mg.x - 25 && it.x < mg.x + 25) {
+                    mg.score++; mg.items.splice(i, 1); i--;
+                } else if (it.y > mg.h) {
+                    mg.items.splice(i, 1); i--; 
+                }
+            }
+
+            // Placar do Minigame
+            mg.ctx.fillStyle = '#fff'; mg.ctx.font = '20px monospace';
+            mg.ctx.fillText("COLETE: " + mg.score + "/5", 10, 30);
+
+            if (mg.score >= 5) endMiniGame(true);
+            else requestAnimationFrame(loopMiniGame);
+        }
+
+        function endMiniGame(win) {
+            mg.active = false;
+            const msg = document.getElementById('mg-msg');
+            msg.innerHTML = "<h2 style='color:var(--green)'>BÔNUS COMPLETADO!</h2><p>+1 VIDA EXTRA</p>";
+            msg.classList.remove('hidden');
+            
+            if (win) st.lives++;
+            updateHUD();
+
+            setTimeout(() => {
+                document.getElementById('mg-canvas').style.display = 'none';
+                msg.classList.add('hidden');
+                next(); 
+            }, 2000);
+        }
+
+        // Controles Touch
+        document.getElementById('mg-canvas').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = e.target.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            if (x < mg.w / 2) mg.x -= 40; else mg.x += 40;
+            // Limites da tela
+            if (mg.x < 20) mg.x = 20; if (mg.x > mg.w - 20) mg.x = mg.w - 20;
+        });
+
+        // Controles Teclado (Teste PC)
+        document.addEventListener('keydown', (e) => {
+            if (!mg.active) return;
+            if (e.key === "ArrowLeft") mg.x -= 40;
+            if (e.key === "ArrowRight") mg.x += 40;
+            if (mg.x < 20) mg.x = 20; if (mg.x > mg.w - 20) mg.x = mg.w - 20;
+        });
+
+        function end() {
+            const time = Math.floor((Date.now() - st.startTime) / 1000);
+            const m = Math.floor(time / 60).toString().padStart(2, '0');
+            const s = (time % 60).toString().padStart(2, '0');
+            const total = st.score + st.errors;
+            const acc = total === 0 ? 0 : Math.round((st.score / total) * 100);
+            const win = st.lives > 0;
+
+            document.getElementById('start').classList.remove('hidden');
+            document.getElementById('start').innerHTML = `
+                <h1 style="color: ${win ? 'var(--green)' : 'var(--red)'}; font-size: 2rem;">
+                    ${win ? 'MISSÃO CUMPRIDA' : 'FALHA NO SISTEMA'}
+                </h1>
+                
+                <div class="report-grid">
+                    <div class="r-item"><span class="r-label">Acertos</span><span class="r-val">${st.score}</span></div>
+                    <div class="r-item"><span class="r-label">Erros</span><span class="r-val" style="color:var(--red)">${st.errors}</span></div>
+                    <div class="r-item"><span class="r-label">Precisão</span><span class="r-val">${acc}%</span></div>
+                    <div class="r-item"><span class="r-label">Tempo</span><span class="r-val">${m}:${s}</span></div>
+                    <div class="r-item"><span class="r-label">Maior Combo</span><span class="r-val" style="color:var(--purple)">${st.maxStreak}</span></div>
+                    <div class="r-item"><span class="r-label">Status</span><span class="r-val">${win ? 'RESGATADO' : 'PERDIDO'}</span></div>
+                </div>
+
+                <a href="https://legeo.com.br" target="_blank" class="site-link">Mais conteúdos em legeo.com.br</a>
+                <button class="btn-start" onclick="location.reload()">NOVA MISSÃO</button>
+            `;
+        }
+
+        document.getElementById('ans').addEventListener("keypress", (e) => {
+            if (e.key === "Enter") check();
+        });
+    </script>
+</body>
+</html>
